@@ -30,8 +30,10 @@ info = gateway()
 # print(info)
 
 project = str(input("请输入项目名称："))
-start = str(time.strftime('%Y-%m-%d 00:00:00',time.localtime()))
-end = str(time.strftime('%Y-%m-%d 23:59:59',time.localtime()))
+start = str((time.strftime('%Y-%m-%d 00:00:00',time.localtime())))
+end = str((time.strftime('%Y-%m-%d 23:59:59',time.localtime())))
+# start = str(input("请输入开始时间：")) + ' 00:00:00'
+# end = str(input("请输入结束时间：")) + ' 23:59:59'
 
 
 class CS():
