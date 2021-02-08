@@ -4,12 +4,13 @@
 
 import re
 import os
-import pymysql
 import time
+import pymysql
 import xlwt
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
+import PySimpleGUI as sg
 
 
 def gateway():
@@ -28,17 +29,53 @@ def gateway():
 
 info = gateway()
 # print(info)
-
+'''
 project = str(input("请输入项目名称："))
 start = str((time.strftime('%Y-%m-%d 00:00:00',time.localtime())))
 end = str((time.strftime('%Y-%m-%d 23:59:59',time.localtime())))
-# start = str(input("请输入开始时间：")) + ' 00:00:00'
-# end = str(input("请输入结束时间：")) + ' 23:59:59'
+'''
 
+start_time = str((time.strftime('%Y-%m-%d 00:00:00',time.localtime())))
+end_time = str((time.strftime('%Y-%m-%d 23:59:59',time.localtime())))
+
+
+#定义主函数
+def main():
+    #布局非常简单
+    layout = [
+        [sg.Text('请输入项目名称: ',font='微软雅黑',size=(12, 1)),sg.Input()],  #文本显示
+        [sg.InputText(start_time)], #默认初始内容的输入框
+        [sg.InputText(end_time)], #默认初始内容的输入框
+        [sg.Text('致命: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
+        [sg.Text('严重: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
+        [sg.Text('一般: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
+        [sg.Text('轻微:',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
+        [sg.Text('今日共提交: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
+        [sg.Text('今日已验证: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
+        [sg.Text('待反测共计: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
+        [sg.Text('修改中共计: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
+        [sg.Submit('确认',font='微软雅黑', size=(10, 1))]
+    ]
+    #定义窗口，窗口名称
+    window = sg.Window('Bug日别数量统计工具',layout,font='微软雅黑')  #支持中文
+
+    while True:  # Event Loop
+        event, values = window.read(timeout=0)
+        if event == None and 'Exit':  #与上面相同
+            break
+    event,input = window.Read(sg.Input())
+    event,input_start = window.Read(sg.InputText(start))
+    event,input_end = window.Read(sg.InputText(end))
+main()
+
+project = str(main().input[0])
+start = str(main().input_start[0])
+end = str(main().input_end[0])
 
 class CS():
 
     def zm(self):
+        # TODO：项目：XM20200255-纪检监察办案指挥系统V3.1T定版集成
         # 连接到mysql数据库
         conn = pymysql.connect(host=info, user='report', password='report', port=3306, db='bugs', charset='UTF8')
         # 创建游标对象
@@ -71,7 +108,7 @@ class CS():
         sql_yz = "SELECT count(*) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
             WHERE bug_status IN ('新提交','待反测的') AND NAME LIKE '%"+project+"%' \
             AND creation_ts BETWEEN '"+start+"' AND '"+end+"' AND bug_severity = '严重';"
-        # print(sql_yz)
+        print(sql_yz)
         # 执行sql语句
         try:
             cursor.execute(sql_yz)
@@ -243,8 +280,6 @@ class SJ():
 
     def analysis(self):
         # 连接到mysql数据库
-        # TODO：项目：XM20200255-纪检监察办案指挥系统V3.1T定版集成
-        # 连接到mysql数据库
         conn = pymysql.connect(host=info, user='report', password='report', port=3306, db='bugs', charset='UTF8')
         # 创建游标对象
         cursor = conn.cursor()
@@ -273,7 +308,6 @@ class SJ():
         cursor.close()
         # 关闭数据库
         conn.close()
-        # TODO：项目：XM20200255-纪检监察办案指挥系统V3.1T定版集成
 
         mpl.rcParams["font.sans-serif"] = ["SimHei"]
         mpl.rcParams["axes.unicode_minus"] = False
