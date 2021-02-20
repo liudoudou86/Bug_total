@@ -208,7 +208,7 @@ class CS():
         sql_excel = "SELECT bugs.bug_id AS 问题ID,bugs.bug_severity AS 问题等级,components.name AS 问题模块,short_desc AS 问题描述,\
         profiles.realname AS 提交者 FROM bugs INNER JOIN products ON bugs.product_id = products.id INNER JOIN profiles ON bugs.reporter = profiles.userid\
         INNER JOIN components ON bugs.component_id = components.id WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的')\
-        AND bugs.creation_ts BETWEEN '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命', '严重', '一般');"
+        AND bugs.creation_ts BETWEEN '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命', '严重', '一般') ORDER BY bugs.bug_severity DESC;"
         # print(sql_excel)
         # 执行sql语句
         cursor.execute(sql_excel)
@@ -230,7 +230,7 @@ class CS():
                 for col,filed in enumerate(data):
                     sheet.write(row,col,filed)
                 row += 1
-            book.save('今日Bug统计.xls')
+            book.save('今日提交问题列表.xls')
         except:
             print('导出excel异常')
 
@@ -241,59 +241,104 @@ class SJ():
         conn = pymysql.connect(host=info, user='report', password='report', port=3306, db='bugs', charset='UTF8')
         # 创建游标对象
         cursor = conn.cursor()
-        # X轴的问题轴线图
-        '''
-        sql_mokuai = "SELECT components.name FROM bugs INNER JOIN products ON bugs.product_id = products.id \
-            INNER JOIN profile_s ON bugs.reporter = profile_s.userid INNER JOIN components ON bugs.component_id = components.id \
-            WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的') AND bugs.creation_ts BETWEEN \
-            '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命', '严重', '一般') GROUP BY components.name ORDER BY count(bugs.bug_severity)DESC;"
-        '''
-        sql_mokuai = "SELECT components.name FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+
+        # 图1的X轴
+        sql_tu1_x = "SELECT components.name FROM bugs INNER JOIN products ON bugs.product_id = products.id \
             INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
-            WHERE products.name LIKE '%"+project+"%' AND bugs.creation_ts BETWEEN \
-            '"+start+"' AND '"+end+"' GROUP BY components.name ORDER BY count(bugs.bug_severity)DESC;"
-        # print(sql_mokuai)
-        # 执行sql语句
-        cursor.execute(sql_mokuai)
+            WHERE products.name LIKE '%"+project+"%' GROUP BY components.name ORDER BY count(bugs.bug_severity) DESC;"
+        # print(sql_tu1_x)
+        cursor.execute(sql_tu1_x)
         result = cursor.fetchall()
-        x_axis = [x[0] for x in result]
-        # print(x_axis)
-        # Y轴的问题轴线图
-        sql_ribie = "SELECT count(bugs.bug_severity) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+        x_axis_1 = [x[0] for x in result]
+        # print(x_axis_1)
+        # 图1的Y轴
+        sql_tu1_y = "SELECT count(bugs.bug_severity) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
             INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
-            WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的') AND bugs.creation_ts BETWEEN \
-            '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY components.name ORDER BY count(bugs.bug_severity)DESC;"
-        # 执行sql语句
-        cursor.execute(sql_ribie)
+            WHERE products.name LIKE '%"+project+"%' GROUP BY components.name ORDER BY count(bugs.bug_severity) DESC;"
+        # print(sql_tu1_y)
+        cursor.execute(sql_tu1_y)
         result = cursor.fetchall()
         y_axis_1 = [x[0] for x in result]
-        sql_quanbu = "SELECT count(bugs.bug_severity) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+
+        # 图3的X轴
+        sql_tu3_x = "SELECT bugs.cf_tijiaojieduan FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+            INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
+            WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('已验证', '已归档') GROUP BY bugs.cf_tijiaojieduan;"
+        # print(sql_tu3_x)
+        cursor.execute(sql_tu3_x)
+        result = cursor.fetchall()
+        x_axis_3 = [x[0] for x in result]
+        # print(x_axis_3)
+        # 图3的Y轴
+        sql_tu3_y = "SELECT count(bugs.bug_severity) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+            INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
+            WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('已验证', '已归档') GROUP BY bugs.cf_tijiaojieduan;"
+        # print(sql_tu3_y)
+        cursor.execute(sql_tu3_y)
+        result = cursor.fetchall()
+        y_axis_3 = [x[0] for x in result]
+
+        # 图2的X轴
+        sql_tu2_x = "SELECT components.name FROM bugs INNER JOIN products ON bugs.product_id = products.id \
             INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
             WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的') AND bugs.creation_ts BETWEEN \
-            '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY components.name ORDER BY count(bugs.bug_severity)DESC;"
-        # 执行sql语句
-        cursor.execute(sql_quanbu)
+            '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY components.name ORDER BY count(bugs.bug_severity) DESC;"
+        # print(sql_tu2_x)
+        cursor.execute(sql_tu2_x)
+        result = cursor.fetchall()
+        x_axis_2 = [x[0] for x in result]
+        # print(x_axis_2)
+        # 图3的Y轴
+        sql_tu2_y = "SELECT count(bugs.bug_severity) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+            INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
+            WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的') AND bugs.creation_ts BETWEEN \
+            '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY components.name ORDER BY count(bugs.bug_severity) DESC;"
+        # print(sql_tu2_y)
+        cursor.execute(sql_tu2_y)
         result = cursor.fetchall()
         y_axis_2 = [x[0] for x in result]
-        # print(y_axis_2)
-        # 关闭游标
-        cursor.close()
         # 关闭数据库
+        cursor.close()
         conn.close()
 
         mpl.rcParams["font.sans-serif"] = ["SimHei"] # 用黑体显示中文
         # mpl.rcParams["axes.unicode_minus"] = False
-
+        plt.figure(figsize=(15,10), dpi=90)
+        plt.figure(1)
         bar_width=0.35
-        plt.bar(x = range(len(x_axis)), height = y_axis_1, width=bar_width, color = 'indianred', alpha=0.8, label='问题总数')
-        plt.bar(x = np.arange(len(x_axis)) + bar_width, height = y_axis_2, width=bar_width, color = 'steelblue', alpha=0.8, label='日别总数')
+
+        # 图1柱形图
+        ax1 = plt.subplot(221)
+        plt.bar(x = x_axis_1, height = y_axis_1, width=bar_width, color = 'b', alpha=0.7)
         # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
         for x, y in enumerate(y_axis_1):
-            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=20, rotation=0)
-        for x, y in enumerate(y_axis_2):
-            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=20, rotation=0)
+            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=12, rotation=0)
         # 标题
-        plt.title('日别问题发掘趋势图') 
+        plt.title('项目整体问题模块趋势图') 
+        # XY轴标题
+        plt.xlabel("问题模块")      
+        plt.ylabel('问题数量')
+
+        # 图2柱形图
+        ax2 = plt.subplot(223)
+        plt.bar(x = x_axis_3, height = y_axis_3, width=bar_width, color = 'g', alpha=0.7)
+        # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
+        for x, y in enumerate(y_axis_3):
+            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=12, rotation=0)
+        # 标题
+        plt.title('项目整体问题解决趋势图') 
+        # XY轴标题
+        plt.xlabel("问题模块")      
+        plt.ylabel('问题数量')
+
+        # 图3柱形图
+        ax3 = plt.subplot(122)
+        plt.bar(x = x_axis_2, height = y_axis_2, width=bar_width, color = 'r', alpha=0.7)
+        # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
+        for x, y in enumerate(y_axis_2):
+            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=12, rotation=0)
+        # 标题
+        plt.title('今日提交问题模块趋势图') 
         # XY轴标题
         plt.xlabel("问题模块")      
         plt.ylabel('问题数量')
