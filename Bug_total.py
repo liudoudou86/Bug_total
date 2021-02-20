@@ -18,7 +18,7 @@ def gateway():
     pr = re.compile(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
     # 通过默认路由得到网关地址，可能存在多条，但只取第一条[0]，通过正则找IP得到的列表第三个元素就是网关[2]
     gw = re.findall(pr,os.popen('route print | find " 0.0.0.0 "').read().strip().split('\n')[0])[2]
-    # 向网关发udp请求包，避免无脑的随意udp包游荡在内网中，通过udp的ip头部获取到发包的源地址，也就是本机生产地址
+    # 向网关发udp请求包，通过udp的ip头部获取到发包的源地址，也就是本机生产地址
     wg = (gw[:-5])
     if wg == '192.168':
         ip_cs = str('192.168.25.247')
@@ -29,48 +29,6 @@ def gateway():
 
 info = gateway()
 # print(info)
-'''
-project = str(input("请输入项目名称："))
-start = str((time.strftime('%Y-%m-%d 00:00:00',time.localtime())))
-end = str((time.strftime('%Y-%m-%d 23:59:59',time.localtime())))
-'''
-
-start_time = str((time.strftime('%Y-%m-%d 00:00:00',time.localtime())))
-end_time = str((time.strftime('%Y-%m-%d 23:59:59',time.localtime())))
-
-
-#定义主函数
-def main():
-    #布局非常简单
-    layout = [
-        [sg.Text('请输入项目名称: ',font='微软雅黑',size=(12, 1)),sg.Input()],  #文本显示
-        [sg.InputText(start_time)], #默认初始内容的输入框
-        [sg.InputText(end_time)], #默认初始内容的输入框
-        [sg.Text('致命: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
-        [sg.Text('严重: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
-        [sg.Text('一般: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
-        [sg.Text('轻微:',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
-        [sg.Text('今日共提交: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
-        [sg.Text('今日已验证: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
-        [sg.Text('待反测共计: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
-        [sg.Text('修改中共计: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='st_xy',size=(10, 1))],
-        [sg.Submit('确认',font='微软雅黑', size=(10, 1))]
-    ]
-    #定义窗口，窗口名称
-    window = sg.Window('Bug日别数量统计工具',layout,font='微软雅黑')  #支持中文
-
-    while True:  # Event Loop
-        event, values = window.read(timeout=0)
-        if event == None and 'Exit':  #与上面相同
-            break
-    event,input = window.Read(sg.Input())
-    event,input_start = window.Read(sg.InputText(start))
-    event,input_end = window.Read(sg.InputText(end))
-main()
-
-project = str(main().input[0])
-start = str(main().input_start[0])
-end = str(main().input_end[0])
 
 class CS():
 
@@ -108,7 +66,7 @@ class CS():
         sql_yz = "SELECT count(*) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
             WHERE bug_status IN ('新提交','待反测的') AND NAME LIKE '%"+project+"%' \
             AND creation_ts BETWEEN '"+start+"' AND '"+end+"' AND bug_severity = '严重';"
-        print(sql_yz)
+        # print(sql_yz)
         # 执行sql语句
         try:
             cursor.execute(sql_yz)
@@ -218,18 +176,18 @@ class CS():
         # 关闭数据库
         conn.close()
 
-    def qt(self):
+    def xgz(self):
         # 连接到mysql数据库
         conn = pymysql.connect(host=info, user='report', password='report', port=3306, db='bugs', charset='UTF8')
         # 创建游标对象
         cursor = conn.cursor()
         # sql语句
-        sql_qt = "SELECT count(*) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+        sql_xgz = "SELECT count(*) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
             WHERE bug_status IN ('新提交','问题未解决','修改中') AND NAME LIKE '%"+project+"%';"
-        # print(sql_qt)
+        # print(sql_xgz)
         # 执行sql语句
         try:
-            cursor.execute(sql_qt)
+            cursor.execute(sql_xgz)
             result = cursor.fetchone()
             for bug in result:
                 print("修改中共计:",bug,"个")
@@ -284,39 +242,56 @@ class SJ():
         # 创建游标对象
         cursor = conn.cursor()
         # X轴的问题轴线图
+        '''
         sql_mokuai = "SELECT components.name FROM bugs INNER JOIN products ON bugs.product_id = products.id \
-            INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
+            INNER JOIN profile_s ON bugs.reporter = profile_s.userid INNER JOIN components ON bugs.component_id = components.id \
             WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的') AND bugs.creation_ts BETWEEN \
             '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命', '严重', '一般') GROUP BY components.name ORDER BY count(bugs.bug_severity)DESC;"
-        # print(sql_analysis)
+        '''
+        sql_mokuai = "SELECT components.name FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+            INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
+            WHERE products.name LIKE '%"+project+"%' AND bugs.creation_ts BETWEEN \
+            '"+start+"' AND '"+end+"' GROUP BY components.name ORDER BY count(bugs.bug_severity)DESC;"
+        # print(sql_mokuai)
         # 执行sql语句
         cursor.execute(sql_mokuai)
         result = cursor.fetchall()
         x_axis = [x[0] for x in result]
         # print(x_axis)
         # Y轴的问题轴线图
-        sql_zhiming = "SELECT count(bugs.bug_severity) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+        sql_ribie = "SELECT count(bugs.bug_severity) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
             INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
             WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的') AND bugs.creation_ts BETWEEN \
             '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY components.name ORDER BY count(bugs.bug_severity)DESC;"
         # 执行sql语句
-        cursor.execute(sql_zhiming)
+        cursor.execute(sql_ribie)
         result = cursor.fetchall()
-        y_axis = [x[0] for x in result]
-        # print(y_axis)
+        y_axis_1 = [x[0] for x in result]
+        sql_quanbu = "SELECT count(bugs.bug_severity) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+            INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
+            WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的') AND bugs.creation_ts BETWEEN \
+            '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY components.name ORDER BY count(bugs.bug_severity)DESC;"
+        # 执行sql语句
+        cursor.execute(sql_quanbu)
+        result = cursor.fetchall()
+        y_axis_2 = [x[0] for x in result]
+        # print(y_axis_2)
         # 关闭游标
         cursor.close()
         # 关闭数据库
         conn.close()
 
-        mpl.rcParams["font.sans-serif"] = ["SimHei"]
-        mpl.rcParams["axes.unicode_minus"] = False
+        mpl.rcParams["font.sans-serif"] = ["SimHei"] # 用黑体显示中文
+        # mpl.rcParams["axes.unicode_minus"] = False
 
         bar_width=0.35
-        plt.bar(x = x_axis, height = y_axis, width=bar_width, color = ['b','g','r','c','m','y','k','b','g','r','c','m','y','k'], alpha=0.6, label='问题总数')
+        plt.bar(x = range(len(x_axis)), height = y_axis_1, width=bar_width, color = 'indianred', alpha=0.8, label='问题总数')
+        plt.bar(x = np.arange(len(x_axis)) + bar_width, height = y_axis_2, width=bar_width, color = 'steelblue', alpha=0.8, label='日别总数')
         # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
-        for x, y in enumerate(y_axis):
-            plt.text(x, y, '%s' % y, ha='center', va='bottom')
+        for x, y in enumerate(y_axis_1):
+            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=20, rotation=0)
+        for x, y in enumerate(y_axis_2):
+            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=20, rotation=0)
         # 标题
         plt.title('日别问题发掘趋势图') 
         # XY轴标题
@@ -326,16 +301,54 @@ class SJ():
         plt.legend()
         plt.show()
 
+start_time = str((time.strftime('%Y-%m-%d 00:00:00',time.localtime())))
+end_time = str((time.strftime('%Y-%m-%d 23:59:59',time.localtime())))
 
-zm = CS().zm()
-yz = CS().yz()
-yb = CS().yb()
-qw = CS().qw()
-ttl = zm + yz + yb + qw
-print('今日共提交: ',ttl,'个')
-yyz = CS().yyz()
-CS().dfc()
-CS().qt()
-CS().bug()
-SJ().analysis()
-os.system("pause")
+layout = [
+    [sg.Text('项目名称: ',font='微软雅黑',size=(10, 1)),sg.Input(key='_PROJECT_')],
+    [sg.Text('开始时间: ',font='微软雅黑',size=(10, 1)),sg.InputText(start_time,key='_START_')], #默认初始内容的输入框
+    [sg.Text('结束时间: ',font='微软雅黑',size=(10, 1)),sg.InputText(end_time,key='_END_')], #默认初始内容的输入框
+    [sg.Text('致命: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='_zm_',size=(10, 1))],
+    [sg.Text('严重: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='_yz_',size=(10, 1))],
+    [sg.Text('一般: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='_yb_',size=(10, 1))],
+    [sg.Text('轻微:',font='微软雅黑',size=(10, 1)), sg.Text('', key='_qw_',size=(10, 1))],
+    [sg.Text('今日共提交: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='_ttl_',size=(10, 1))],
+    [sg.Text('今日已验证: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='_yyz_',size=(10, 1))],
+    [sg.Text('待反测共计: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='_dfc_',size=(10, 1))],
+    [sg.Text('修改中共计: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='_xgz_',size=(10, 1))],
+    [sg.Button('确认',key = '_CONFIRM_',font='微软雅黑', size=(10, 1)), sg.Exit('退出',key = '_EXIT_',font='微软雅黑', size=(10, 1))]
+]
+# 定义窗口，窗口名称
+window = sg.Window('Bug日别数量统计工具',layout,font='微软雅黑')
+# 自定义窗口进行数值回显
+while True:
+    event,values = window.read()
+    if event == '_CONFIRM_':
+        project = str(values['_PROJECT_'])
+        # print(project)
+        start = str(values['_START_'])
+        # print(start)
+        end = str(values['_END_'])
+        # print(end)
+        zm = CS().zm()
+        window.FindElement('_zm_').Update(zm) #将读取的数据回显到界面
+        yz = CS().yz()
+        window.FindElement('_yz_').Update(yz)
+        yb = CS().yb()
+        window.FindElement('_yb_').Update(yb)
+        qw = CS().qw()
+        window.FindElement('_qw_').Update(qw)
+        ttl = zm + yz + yb + qw
+        window.FindElement('_ttl_').Update(ttl)
+        yyz = CS().yyz()
+        window.FindElement('_yyz_').Update(yyz)
+        dfc = CS().dfc()
+        window.FindElement('_dfc_').Update(dfc)
+        xqz = CS().xgz()
+        window.FindElement('_xgz_').Update(xqz)
+        CS().bug()
+        SJ().analysis()
+    elif event in ['_EXIT_',None]:
+        break
+    else:
+        pass
