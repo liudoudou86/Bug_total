@@ -2,33 +2,17 @@
 # -*- coding:utf-8 -*-
 # Author:lz
 
-import re
 import os
+import re
 import time
-import pymysql
-import xlwt
-import matplotlib.pyplot as plt
+
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
+import pymysql
 import PySimpleGUI as sg
+import xlwt
 
-
-def gateway():
-    # 粗略找IP地址的正则表达式，包括掩码在内一起找
-    pr = re.compile(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
-    # 通过默认路由得到网关地址，可能存在多条，但只取第一条[0]，通过正则找IP得到的列表第三个元素就是网关[2]
-    gw = re.findall(pr,os.popen('route print | find " 0.0.0.0 "').read().strip().split('\n')[0])[2]
-    # 向网关发udp请求包，通过udp的ip头部获取到发包的源地址，也就是本机生产地址
-    wg = (gw[:-5])
-    if wg == '192.168':
-        ip_cs = str('192.168.25.247')
-        return ip_cs
-    else:
-        ip_gz = str('10.30.12.247')
-        return ip_gz
-
-info = gateway()
-# print(info)
 
 class CS():
 
@@ -48,8 +32,8 @@ class CS():
             cursor.execute(sql_zm)
             result = cursor.fetchone()
             for bug in result:
-                print("致命:",bug,"个")
-            return bug
+                # print("致命:",bug,"个")
+                return bug
         except:
             print("查询异常_致命")
         # 关闭游标
@@ -72,8 +56,8 @@ class CS():
             cursor.execute(sql_yz)
             result = cursor.fetchone()
             for bug in result:
-                print("严重:",bug,"个")
-            return bug
+                # print("严重:",bug,"个")
+                return bug
         except:
             print("查询异常_严重")
         # 关闭游标
@@ -96,8 +80,8 @@ class CS():
             cursor.execute(sql_yb)
             result = cursor.fetchone()
             for bug in result:
-                print("一般:",bug,"个")
-            return bug
+                # print("一般:",bug,"个")
+                return bug
         except:
             print("查询异常_一般")
         # 关闭游标
@@ -120,8 +104,8 @@ class CS():
             cursor.execute(sql_qw)
             result = cursor.fetchone()
             for bug in result:
-                print("轻微:",bug,"个")
-            return bug
+                # print("轻微:",bug,"个")
+                return bug
         except:
             print("查询异常_轻微")
         # 关闭游标
@@ -144,8 +128,8 @@ class CS():
             cursor.execute(sql_yyz)
             result = cursor.fetchone()
             for bug in result:
-                print("今日已验证:",bug,"个")
-            return bug
+                # print("今日已验证:",bug,"个")
+                return bug
         except:
             print("查询异常_已验证")
         # 关闭游标
@@ -167,8 +151,8 @@ class CS():
             cursor.execute(sql_dfc)
             result = cursor.fetchone()
             for bug in result:
-                print("待反测共计:",bug,"个")
-            return bug
+                # print("待反测共计:",bug,"个")
+                return bug
         except:
             print("查询异常_待反测")
         # 关闭游标
@@ -190,8 +174,8 @@ class CS():
             cursor.execute(sql_xgz)
             result = cursor.fetchone()
             for bug in result:
-                print("修改中共计:",bug,"个")
-            return bug
+                # print("修改中共计:",bug,"个")
+                return bug
         except:
             print("查询异常_修改中")
         # 关闭游标
@@ -230,7 +214,7 @@ class CS():
                 for col,filed in enumerate(data):
                     sheet.write(row,col,filed)
                 row += 1
-            book.save('今日提交问题列表.xls')
+            book.save('D:\今日提交问题列表.xls')
         except:
             print('导出excel异常')
 
@@ -263,7 +247,7 @@ class SJ():
         # 图3的X轴
         sql_tu3_x = "SELECT bugs.cf_tijiaojieduan FROM bugs INNER JOIN products ON bugs.product_id = products.id \
             INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
-            WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('已验证', '已归档') GROUP BY bugs.cf_tijiaojieduan;"
+            WHERE products.name LIKE '%"+project+"%' GROUP BY bugs.cf_tijiaojieduan;"
         # print(sql_tu3_x)
         cursor.execute(sql_tu3_x)
         result = cursor.fetchall()
@@ -272,7 +256,7 @@ class SJ():
         # 图3的Y轴
         sql_tu3_y = "SELECT count(bugs.bug_severity) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
             INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
-            WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('已验证', '已归档') GROUP BY bugs.cf_tijiaojieduan;"
+            WHERE products.name LIKE '%"+project+"%' GROUP BY bugs.cf_tijiaojieduan;"
         # print(sql_tu3_y)
         cursor.execute(sql_tu3_y)
         result = cursor.fetchall()
@@ -309,7 +293,7 @@ class SJ():
 
         # 图1柱形图
         ax1 = plt.subplot(221)
-        plt.bar(x = x_axis_1, height = y_axis_1, width=bar_width, color = 'b', alpha=0.7)
+        plt.bar(x = x_axis_1, height = y_axis_1, width=bar_width, color = 'b', alpha=0.7, label='-')
         # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
         for x, y in enumerate(y_axis_1):
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=12, rotation=0)
@@ -321,19 +305,19 @@ class SJ():
 
         # 图2柱形图
         ax2 = plt.subplot(223)
-        plt.bar(x = x_axis_3, height = y_axis_3, width=bar_width, color = 'g', alpha=0.7)
+        plt.bar(x = x_axis_3, height = y_axis_3, width=bar_width, color = 'g', alpha=0.7, label='-')
         # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
         for x, y in enumerate(y_axis_3):
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=12, rotation=0)
         # 标题
-        plt.title('项目整体问题解决趋势图') 
+        plt.title('项目整体问题阶段趋势图') 
         # XY轴标题
         plt.xlabel("问题模块")      
         plt.ylabel('问题数量')
 
         # 图3柱形图
         ax3 = plt.subplot(122)
-        plt.bar(x = x_axis_2, height = y_axis_2, width=bar_width, color = 'r', alpha=0.7)
+        plt.bar(x = x_axis_2, height = y_axis_2, width=bar_width, color = 'r', alpha=0.7, label='-')
         # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
         for x, y in enumerate(y_axis_2):
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=12, rotation=0)
@@ -350,6 +334,7 @@ start_time = str((time.strftime('%Y-%m-%d 00:00:00',time.localtime())))
 end_time = str((time.strftime('%Y-%m-%d 23:59:59',time.localtime())))
 
 layout = [
+    [sg.Radio('测试机', 'RADIO1', key='_RADIO1_', default=True), sg.Radio('工作机', 'RADIO1', key='_RADIO2_')],
     [sg.Text('项目名称: ',font='微软雅黑',size=(10, 1)),sg.Input(key='_PROJECT_')],
     [sg.Text('开始时间: ',font='微软雅黑',size=(10, 1)),sg.InputText(start_time,key='_START_')], #默认初始内容的输入框
     [sg.Text('结束时间: ',font='微软雅黑',size=(10, 1)),sg.InputText(end_time,key='_END_')], #默认初始内容的输入框
@@ -361,7 +346,7 @@ layout = [
     [sg.Text('今日已验证: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='_yyz_',size=(10, 1))],
     [sg.Text('待反测共计: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='_dfc_',size=(10, 1))],
     [sg.Text('修改中共计: ',font='微软雅黑',size=(10, 1)), sg.Text('', key='_xgz_',size=(10, 1))],
-    [sg.Button('确认',key = '_CONFIRM_',font='微软雅黑', size=(10, 1)), sg.Exit('退出',key = '_EXIT_',font='微软雅黑', size=(10, 1))]
+    [sg.Button('确认',key = '_CONFIRM_',font='微软雅黑', size=(10, 1)), sg.Exit('退出',key = '_EXIT_',font='微软雅黑', size=(10, 1)), sg.Open('打开Bug列表',key = '_OPEN_',font='微软雅黑', size=(10, 1))]
 ]
 # 定义窗口，窗口名称
 window = sg.Window('Bug日别数量统计工具',layout,font='微软雅黑')
@@ -369,6 +354,12 @@ window = sg.Window('Bug日别数量统计工具',layout,font='微软雅黑')
 while True:
     event,values = window.read()
     if event == '_CONFIRM_':
+        if values.get('_RADIO1_','True'):
+            info = str('192.168.25.247')
+        elif values.get('_RADIO2_','True'):
+            info = str('10.30.12.247')
+        else:
+            pass
         project = str(values['_PROJECT_'])
         # print(project)
         start = str(values['_START_'])
@@ -376,23 +367,25 @@ while True:
         end = str(values['_END_'])
         # print(end)
         zm = CS().zm()
-        window.FindElement('_zm_').Update(zm) #将读取的数据回显到界面
         yz = CS().yz()
-        window.FindElement('_yz_').Update(yz)
         yb = CS().yb()
-        window.FindElement('_yb_').Update(yb)
         qw = CS().qw()
-        window.FindElement('_qw_').Update(qw)
         ttl = zm + yz + yb + qw
-        window.FindElement('_ttl_').Update(ttl)
         yyz = CS().yyz()
-        window.FindElement('_yyz_').Update(yyz)
         dfc = CS().dfc()
-        window.FindElement('_dfc_').Update(dfc)
         xqz = CS().xgz()
-        window.FindElement('_xgz_').Update(xqz)
+        window['_zm_'].Update(zm) #将读取的数据回显到界面
+        window['_yz_'].Update(yz)
+        window['_yb_'].Update(yb)
+        window['_qw_'].Update(qw)
+        window['_ttl_'].Update(ttl)
+        window['_yyz_'].Update(yyz)
+        window['_dfc_'].Update(dfc)
+        window['_xgz_'].Update(xqz)
         CS().bug()
         SJ().analysis()
+    elif event == '_OPEN_':
+        os.system(r"D:\今日提交问题列表.xls")
     elif event in ['_EXIT_',None]:
         break
     else:
