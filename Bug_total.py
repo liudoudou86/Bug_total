@@ -307,7 +307,7 @@ class SJ():
 
         mpl.rcParams["font.sans-serif"] = ["SimHei"] # 用黑体显示中文
         # mpl.rcParams["axes.unicode_minus"] = False
-        plt.figure(figsize=(10,7), dpi=90)
+        plt.figure(figsize=(8,7), dpi=90)
         plt.figure(1)
         bar_width=0.25
 
