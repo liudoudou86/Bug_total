@@ -313,7 +313,7 @@ class SJ():
 
         # 图1柱形图
         ax1 = plt.subplot(221)
-        plt.bar(x = x_axis_1, height = y_axis_1, width=bar_width, color = 'b', alpha=0.7, label='-')
+        plt.bar(x = x_axis_1, height = y_axis_1, width=bar_width, color = '#1f77b4', alpha=0.8, label='-')
         # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
         for x, y in enumerate(y_axis_1):
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
@@ -325,7 +325,7 @@ class SJ():
 
         # 图2柱形图
         ax2 = plt.subplot(222)
-        plt.bar(x = x_axis_2, height = y_axis_2, width=bar_width, color = 'r', alpha=0.7, label='-')
+        plt.bar(x = x_axis_2, height = y_axis_2, width=bar_width, color = '#d62728', alpha=0.8, label='-')
         # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
         for x, y in enumerate(y_axis_2):
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
@@ -337,7 +337,7 @@ class SJ():
 
         # 图3柱形图
         ax3 = plt.subplot(223)
-        plt.bar(x = x_axis_3, height = y_axis_3, width=bar_width, color = 'g', alpha=0.7, label='-')
+        plt.bar(x = x_axis_3, height = y_axis_3, width=bar_width, color = '#2ca02c', alpha=0.8, label='-')
         # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
         for x, y in enumerate(y_axis_3):
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
@@ -349,7 +349,7 @@ class SJ():
 
         # 图4柱形图
         ax4 = plt.subplot(224)
-        plt.bar(x = x_axis_4, height = y_axis_4, width=bar_width, color = 'y', alpha=0.7, label='-')
+        plt.bar(x = x_axis_4, height = y_axis_4, width=bar_width, color = '#ff7f0e', alpha=0.8, label='')
         # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
         for x, y in enumerate(y_axis_4):
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
