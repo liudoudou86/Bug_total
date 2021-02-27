@@ -17,7 +17,6 @@ import xlwt
 class CS():
 
     def zm(self):
-        # TODO：项目：XM20200255-纪检监察办案指挥系统V3.1T定版集成
         # 连接到mysql数据库
         conn = pymysql.connect(host=info, user='report', password='report', port=3306, db='bugs', charset='UTF8')
         # 创建游标对象
@@ -214,7 +213,7 @@ class CS():
                 for col,filed in enumerate(data):
                     sheet.write(row,col,filed)
                 row += 1
-            book.save('D:\今日提交问题列表.xls')
+            book.save('D:\问题列表.xls')
         except:
             print('导出excel异常')
 
@@ -244,6 +243,26 @@ class SJ():
         result = cursor.fetchall()
         y_axis_1 = [x[0] for x in result]
 
+        # 图2的X轴
+        sql_tu2_x = "SELECT components.name FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+            INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
+            WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的') AND bugs.creation_ts BETWEEN \
+            '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY components.name ORDER BY count(bugs.bug_severity) DESC;"
+        # print(sql_tu2_x)
+        cursor.execute(sql_tu2_x)
+        result = cursor.fetchall()
+        x_axis_2 = [x[0] for x in result]
+        # print(x_axis_2)
+        # 图2的Y轴
+        sql_tu2_y = "SELECT count(bugs.bug_severity) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+            INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
+            WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的') AND bugs.creation_ts BETWEEN \
+            '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY components.name ORDER BY count(bugs.bug_severity) DESC;"
+        # print(sql_tu2_y)
+        cursor.execute(sql_tu2_y)
+        result = cursor.fetchall()
+        y_axis_2 = [x[0] for x in result]
+
         # 图3的X轴
         sql_tu3_x = "SELECT bugs.cf_tijiaojieduan FROM bugs INNER JOIN products ON bugs.product_id = products.id \
             INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
@@ -262,70 +281,84 @@ class SJ():
         result = cursor.fetchall()
         y_axis_3 = [x[0] for x in result]
 
-        # 图2的X轴
-        sql_tu2_x = "SELECT components.name FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+        # 图4的X轴
+        sql_tu4_x = "SELECT profiles.realname FROM bugs INNER JOIN products ON bugs.product_id = products.id \
             INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
             WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的') AND bugs.creation_ts BETWEEN \
-            '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY components.name ORDER BY count(bugs.bug_severity) DESC;"
-        # print(sql_tu2_x)
-        cursor.execute(sql_tu2_x)
+            '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY profiles.realname ORDER BY count(bugs.bug_severity) DESC;"
+        # print(sql_tu4_x)
+        cursor.execute(sql_tu4_x)
         result = cursor.fetchall()
-        x_axis_2 = [x[0] for x in result]
-        # print(x_axis_2)
-        # 图3的Y轴
-        sql_tu2_y = "SELECT count(bugs.bug_severity) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
+        x_axis_4 = [x[0] for x in result]
+        # print(x_axis_4)
+        # 图4的Y轴
+        sql_tu4_y = "SELECT count(bugs.bug_severity) FROM bugs INNER JOIN products ON bugs.product_id = products.id \
             INNER JOIN profiles ON bugs.reporter = profiles.userid INNER JOIN components ON bugs.component_id = components.id \
             WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的') AND bugs.creation_ts BETWEEN \
-            '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY components.name ORDER BY count(bugs.bug_severity) DESC;"
-        # print(sql_tu2_y)
-        cursor.execute(sql_tu2_y)
+            '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY profiles.realname ORDER BY count(bugs.bug_severity) DESC;"
+        # print(sql_tu4_y)
+        cursor.execute(sql_tu4_y)
         result = cursor.fetchall()
-        y_axis_2 = [x[0] for x in result]
+        y_axis_4 = [x[0] for x in result]
+
         # 关闭数据库
         cursor.close()
         conn.close()
 
         mpl.rcParams["font.sans-serif"] = ["SimHei"] # 用黑体显示中文
         # mpl.rcParams["axes.unicode_minus"] = False
-        plt.figure(figsize=(15,10), dpi=90)
+        plt.figure(figsize=(10,7), dpi=90)
         plt.figure(1)
-        bar_width=0.35
+        bar_width=0.25
 
         # 图1柱形图
         ax1 = plt.subplot(221)
         plt.bar(x = x_axis_1, height = y_axis_1, width=bar_width, color = 'b', alpha=0.7, label='-')
         # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
         for x, y in enumerate(y_axis_1):
-            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=12, rotation=0)
+            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
         # 标题
-        plt.title('项目整体问题模块趋势图') 
+        plt.title('项目问题模块趋势图') 
         # XY轴标题
-        plt.xlabel("问题模块")      
-        plt.ylabel('问题数量')
+        # plt.xlabel("问题模块")      
+        # plt.ylabel('问题数量')
 
         # 图2柱形图
-        ax2 = plt.subplot(223)
-        plt.bar(x = x_axis_3, height = y_axis_3, width=bar_width, color = 'g', alpha=0.7, label='-')
-        # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
-        for x, y in enumerate(y_axis_3):
-            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=12, rotation=0)
-        # 标题
-        plt.title('项目整体问题阶段趋势图') 
-        # XY轴标题
-        plt.xlabel("问题模块")      
-        plt.ylabel('问题数量')
-
-        # 图3柱形图
-        ax3 = plt.subplot(122)
+        ax2 = plt.subplot(222)
         plt.bar(x = x_axis_2, height = y_axis_2, width=bar_width, color = 'r', alpha=0.7, label='-')
         # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
         for x, y in enumerate(y_axis_2):
-            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=12, rotation=0)
+            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
         # 标题
-        plt.title('今日提交问题模块趋势图') 
+        plt.title('日别问题提交模块趋势图') 
         # XY轴标题
-        plt.xlabel("问题模块")      
-        plt.ylabel('问题数量')
+        # plt.xlabel("问题模块")      
+        # plt.ylabel('问题数量')
+
+        # 图3柱形图
+        ax3 = plt.subplot(223)
+        plt.bar(x = x_axis_3, height = y_axis_3, width=bar_width, color = 'g', alpha=0.7, label='-')
+        # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
+        for x, y in enumerate(y_axis_3):
+            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
+        # 标题
+        plt.title('项目问题阶段趋势图') 
+        # XY轴标题
+        # plt.xlabel("问题模块")      
+        # plt.ylabel('问题数量')
+
+        # 图4柱形图
+        ax4 = plt.subplot(224)
+        plt.bar(x = x_axis_4, height = y_axis_4, width=bar_width, color = 'y', alpha=0.7, label='-')
+        # 在柱状图上显示具体数值，ha参数控制水平对齐方式，va参数控制垂直对齐方式
+        for x, y in enumerate(y_axis_4):
+            plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
+        # 标题
+        plt.title('日别问题提交人员趋势图') 
+        # XY轴标题
+        # plt.xlabel("问题模块")      
+        # plt.ylabel('问题数量')
+
         # 显示图例
         plt.legend()
         plt.show()
@@ -349,7 +382,7 @@ layout = [
     [sg.Button('确认',key = '_CONFIRM_',font='微软雅黑', size=(10, 1)), sg.Exit('退出',key = '_EXIT_',font='微软雅黑', size=(10, 1)), sg.Open('打开Bug列表',key = '_OPEN_',font='微软雅黑', size=(10, 1))]
 ]
 # 定义窗口，窗口名称
-window = sg.Window('Bug日别数量统计工具',layout,font='微软雅黑')
+window = sg.Window('Bug数量统计工具',layout,font='微软雅黑')
 # 自定义窗口进行数值回显
 while True:
     event,values = window.read()
@@ -385,7 +418,7 @@ while True:
         CS().bug()
         SJ().analysis()
     elif event == '_OPEN_':
-        os.system(r"D:\今日提交问题列表.xls")
+        os.system(r"D:\问题列表.xls")
     elif event in ['_EXIT_',None]:
         break
     else:
