@@ -309,7 +309,7 @@ class SJ():
         # mpl.rcParams["axes.unicode_minus"] = False
         plt.figure(figsize=(8,7), dpi=90)
         plt.figure(1)
-        bar_width=0.25
+        bar_width=0.3
 
         # 图1柱形图
         ax1 = plt.subplot(221)
@@ -318,10 +318,10 @@ class SJ():
         for x, y in enumerate(y_axis_1):
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
         # 标题
-        plt.title('项目问题模块趋势图') 
-        # XY轴标题
-        # plt.xlabel("问题模块")      
-        # plt.ylabel('问题数量')
+        plt.title('项目问题模块趋势图',fontsize=10) 
+        # X轴标签倾斜度
+        plt.xticks(rotation=25)
+        
 
         # 图2柱形图
         ax2 = plt.subplot(222)
@@ -330,10 +330,9 @@ class SJ():
         for x, y in enumerate(y_axis_2):
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
         # 标题
-        plt.title('日别问题提交模块趋势图') 
-        # XY轴标题
-        # plt.xlabel("问题模块")      
-        # plt.ylabel('问题数量')
+        plt.title('今日问题提交模块趋势图',fontsize=10) 
+        # X轴标签倾斜度
+        plt.xticks(rotation=25)
 
         # 图3柱形图
         ax3 = plt.subplot(223)
@@ -342,10 +341,9 @@ class SJ():
         for x, y in enumerate(y_axis_3):
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
         # 标题
-        plt.title('项目问题阶段趋势图') 
-        # XY轴标题
-        # plt.xlabel("问题模块")      
-        # plt.ylabel('问题数量')
+        plt.title('项目问题阶段趋势图',fontsize=10) 
+        # X轴标签倾斜度
+        plt.xticks(rotation=25)
 
         # 图4柱形图
         ax4 = plt.subplot(224)
@@ -354,10 +352,9 @@ class SJ():
         for x, y in enumerate(y_axis_4):
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
         # 标题
-        plt.title('日别问题提交人员趋势图') 
-        # XY轴标题
-        # plt.xlabel("问题模块")      
-        # plt.ylabel('问题数量')
+        plt.title('今日问题提交人员趋势图',fontsize=10) 
+        # X轴标签倾斜度
+        plt.xticks(rotation=25)
 
         # 显示图例
         plt.legend()
