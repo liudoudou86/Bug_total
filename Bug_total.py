@@ -319,8 +319,8 @@ class SJ():
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
         # 标题
         plt.title('项目问题模块趋势图',fontsize=10) 
-        # X轴标签倾斜度
-        plt.xticks(rotation=25)
+        # X轴标签倾斜度及刻度字体大小
+        plt.xticks(rotation=25, fontsize=9)
         
 
         # 图2柱形图
@@ -331,8 +331,8 @@ class SJ():
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
         # 标题
         plt.title('今日问题提交模块趋势图',fontsize=10) 
-        # X轴标签倾斜度
-        plt.xticks(rotation=25)
+        # X轴标签倾斜度及刻度字体大小
+        plt.xticks(rotation=25, fontsize=9)
 
         # 图3柱形图
         ax3 = plt.subplot(223)
@@ -342,8 +342,8 @@ class SJ():
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
         # 标题
         plt.title('项目问题阶段趋势图',fontsize=10) 
-        # X轴标签倾斜度
-        plt.xticks(rotation=25)
+        # X轴标签倾斜度及刻度字体大小
+        plt.xticks(rotation=25, fontsize=9)
 
         # 图4柱形图
         ax4 = plt.subplot(224)
@@ -353,11 +353,11 @@ class SJ():
             plt.text(x, y, '%s' % y, ha='center', va='bottom', fontsize=10, rotation=0)
         # 标题
         plt.title('今日问题提交人员趋势图',fontsize=10) 
-        # X轴标签倾斜度
-        plt.xticks(rotation=25)
+        # X轴标签倾斜度及刻度字体大小
+        plt.xticks(rotation=25, fontsize=9)
 
-        # 显示图例
-        plt.legend()
+        # 显示图例及图例字体大小
+        plt.legend(fontsize=10)
         plt.show()
 
 start_time = str((time.strftime('%Y-%m-%d 00:00:00',time.localtime())))
