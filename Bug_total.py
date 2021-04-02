@@ -307,7 +307,8 @@ class SJ():
 
         mpl.rcParams["font.sans-serif"] = ["SimHei"] # 用黑体显示中文
         # mpl.rcParams["axes.unicode_minus"] = False
-        plt.figure(figsize=(8,7), dpi=90)
+        plt.style.use('ggplot') # 套用标准图例模板
+        plt.figure(figsize=(8,7), dpi=100)
         plt.figure(1)
         bar_width=0.3
 
