@@ -12,6 +12,7 @@ import numpy as np
 import pymysql
 import PySimpleGUI as sg
 import xlwt
+from loguru import logger
 
 
 class CS():
@@ -287,6 +288,7 @@ class SJ():
             WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的') AND bugs.creation_ts BETWEEN \
             '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY profiles.realname ORDER BY count(bugs.bug_severity) DESC;"
         # print(sql_tu4_x)
+        logger.debug(sql_tu4_x)
         cursor.execute(sql_tu4_x)
         result = cursor.fetchall()
         x_axis_4 = [x[0] for x in result]
@@ -297,6 +299,7 @@ class SJ():
             WHERE products.name LIKE '%"+project+"%' AND bugs.bug_status IN ('新提交', '待反测的') AND bugs.creation_ts BETWEEN \
             '"+start+"' AND '"+end+"' AND bugs.bug_severity IN ('致命','严重','一般') GROUP BY profiles.realname ORDER BY count(bugs.bug_severity) DESC;"
         # print(sql_tu4_y)
+        logger.debug(sql_tu4_y)
         cursor.execute(sql_tu4_y)
         result = cursor.fetchall()
         y_axis_4 = [x[0] for x in result]
